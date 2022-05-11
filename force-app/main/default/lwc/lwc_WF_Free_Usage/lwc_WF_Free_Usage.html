@@ -1,0 +1,148 @@
+<template>
+    <template if:true={loader}>
+        <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+    </template>
+ 
+    <div class="slds-box slds-theme_default">
+        <lightning-card  title={title}>
+            <lightning-button label="New" slot="actions" onclick={handleCreateFreeUsage}></lightning-button>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset slds-text-title_caps">
+                        <th  class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="ID">
+                                ID
+                            </div>
+                        </th><th class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="Account__c">
+                                Account__c
+                            </div>
+                        </th>
+                        <th  class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="NO">
+                                NO
+                            </div>
+                        </th>
+                        <th  class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="CONTRACT NO">
+                                CONTRACT NO
+                            </div>
+                        </th>
+                        <th  class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="FREE HOURS">
+                                FREE HOURS
+                            </div>
+                        </th>
+                        <th  class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="FREE USAGE DATE">
+                                FREE USAGE DATE
+                            </div>
+                        </th>
+                        <th class="slds-is-resizable" scope="col">
+                            <div class="slds-truncate" title="ACTIONS">
+                                ACTIONS
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template if:true={freeUsage}>
+                        <template for:each={freeUsage} for:item="fu">
+                            <tr key={fu.Id}>
+                                <th scope="row" data-label="Id">
+                                    <div class="slds-truncate" title={fu.Id}>{fu.Id}</div>
+                                </th><th scope="row" data-label="Id">
+                                    <div class="slds-truncate" title={fu.Account__c}>{fu.Account__c}</div>
+                                </th>
+                                <th scope="row" data-label="Name">
+                                    <div class="slds-truncate" title={fu.Name}>{fu.Name}</div>
+                                </th>
+                                <th scope="row" data-label="Contract_No__c">
+                                    <div class="slds-truncate" title={fu.Contract_No__c}>{fu.Contract_No__c}</div>
+                                </th>
+                                <th scope="row" data-label="Hour__c">
+                                    <div class="slds-truncate" title={fu.Hour__c}>{fu.Hour__c}</div>
+                                </th>
+                                <th scope="row" data-label="Request_free_usage_day__c">
+                                    <div class="slds-truncate" title={fu.Request_free_usage_day__c}>{fu.Request_free_usage_day__c}</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate">
+                                        <div class="myButton">
+                                            <lightning-button-menu icon-size="x-small" alternative-text="Show menu"
+                                                menu-alignment="auto">
+                                                <lightning-menu-item data-record-id={fu.Id} onclick={handleEdit}
+                                                    value="Edit" label="Edit"></lightning-menu-item>
+                                                <lightning-menu-item data-record-id={fu.Id}
+                                                    onclick={handleOpenConfirm} value="Delete" label="Delete">
+                                                </lightning-menu-item>
+                                            </lightning-button-menu>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </template>
+                    </template>
+                </tbody>
+            </table>
+            <template if:true={isDisplayNoRecords}>
+                <div class="slds-align_absolute-center">
+                    <br/>
+                    No records found
+                </div>
+            </template>
+            <br/>
+            <div class="slds-align_absolute-center"> 
+                <div class="slds-p-right_xx-small">
+                         
+                    <lightning-button label="Prev"
+                    disabled={isPrev} onclick={handlePrev}
+                                        variant="brand"
+                                        icon-name="utility:back"
+                                        name="prev"></lightning-button>  
+                </div>
+                <template if:true={isDisplaySpan}>
+                    <span class="slds-badge slds-badge_lightest">
+                        {recordStart}-{recordEnd} of {totalRecordsById} | Page {pageNumber} of {totalPages}
+                    </span>
+                </template>
+                <div class="slds-p-left_xx-small">
+                    <lightning-button label="Next"
+                    disabled={isNext} onclick={handleNext}
+                                        variant="brand"
+                                        icon-name="utility:forward"
+                                        icon-position="right"
+                                        name="next"></lightning-button>
+                </div>
+            </div>  
+            <template if:true={isConfirmOpen}>
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+                    aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                title="Close" onclick={handleCloseConfirm}>
+                                <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                                    size="small"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Delete Free Usage</h2>
+                        </header>
+                        
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <center><p>Are you sure to detete <b>{deleteFreeUsageName}</b> ?</p></center>
+                        </div>
+                        
+                        <footer class="slds-modal__footer">
+                            <button class="slds-button slds-button_neutral" onclick={handleCloseConfirm}
+                                title="Cancel">Cancel</button>
+                            <button class="slds-button slds-button_brand" onclick={handleDeleteFreeUsage} title="OK">OK</button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>
+        </lightning-card>
+    </div>
+</template>
